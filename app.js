@@ -7,8 +7,8 @@ var path = require('path');
 var fs = require('fs');
 
 var incomingFilePath = path.resolve(__dirname, 'incoming/');
-var HOST = '127.0.0.1';
-var PORT = 9000;
+var HOST = '0.0.0.0';
+var PORT = process.argv[2] || 9000; // "node app.js are [0], [1]"
 
 var markers = {
   start: '{{cmd}}',
