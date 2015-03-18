@@ -29,3 +29,4 @@ node_modules
 
 # ignore our incoming directory
 incoming/
+outgoing/

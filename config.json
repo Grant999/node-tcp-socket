@@ -1,0 +1,19 @@
+{
+  "paths": {
+    "incoming": "incoming",
+    "outgoing": "outgoing",
+    "plugins": "ext"
+  },
+  "defaults": {
+    "port": 9000,
+    "hostBinding": "0.0.0.0"
+  },
+  "commandFormat": {
+    "open": "{{cmd}}",
+    "close": "{{/cmd}}"
+  },
+  "ffmpeg": {
+    "cmd": "ffmpeg",
+    "args": "{{#each inputs}} -i '{{this}}' {{/each}} -filter_complex concat=n={{inputs.length}}:v=1:a=0 -y '{{output}}'"
+  }
+}
