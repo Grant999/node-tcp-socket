@@ -7,6 +7,7 @@ var _ = require('underscore'); // awww yiss
 var net = require('net');
 var path = require('path');
 var fs = require('fs');
+var EventEmitter = require('events').EventEmitter;
 
 var app = module.exports = {};
 
@@ -27,14 +28,12 @@ var PORT = process.argv[2] || config.defaults.port; // "node app.js are [0], [1]
 config.ffmpeg.args = Handlebars.compile(config.ffmpeg.args);
 
 net.createServer(function(sock) {
-  // TODO: later, support multiple connections by spinning up a listener
-  // for each socket connection
+  var socketPub = new EventEmitter();
 
-  console.log('CONNECTED: ' + sock.remoteAddress + ':' + sock.remotePort);
+  app.pubsub.emit('socket:connect', socketPub, sock.remoteAddress, sock.remotePort);
 
   sock.on('data', function(data) {
     // ensure that we're dealing with binary data all the time
-    // console.log('-=-=-=-=-=-=-=- new data packet -=-=-=-=-=-=-=-');
     var buffer = data;
     if(!Buffer.isBuffer(buffer)) buffer = new Buffer(data);
     var pos = 0;
@@ -49,24 +48,22 @@ net.createServer(function(sock) {
           var end = buffer.indexOf(config.commandFormat.close);
           var strBuffer = buffer.slice(start, end).toString();
           var cmd = strBuffer.split(':');
-          cmd[0] = 'socket:' + cmd[0];
 
-          pubsub.emit.apply(pubsub, cmd);
+          socketPub.emit.apply(socketPub, cmd);
           pos = end + Buffer.byteLength(config.commandFormat.close);
         }
       } else {
         // data segment?
         if(start === -1) start = buffer.length;
-        pubsub.emit('socket:data', buffer.slice(pos, start));
+        socketPub.emit('data', buffer.slice(pos, start));
         pos = start;
       }
     }
-    // console.log('-=-=-=-=-=-=-=- done processing -=-=-=-=-=-=-=-\n');
   });
 
   sock.on('close', function(data) {
     // TODO: clean up any half-transferred files?
-    // TODO: spin down any listeners assigned to this socket...
+    socketPub.emit('close', data, sock);
     console.log('CLOSED: ' + sock.remoteAddress + ':' + sock.remotePort);
   });
 }).listen(PORT, HOST);

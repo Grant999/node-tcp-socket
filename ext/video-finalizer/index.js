@@ -1,5 +1,6 @@
 var FfmpegTask = require('./ffmpeg-task');
 var fs = require('fs');
+var path = require('path');
 var _ = require('underscore');
 
 var queue = [];
@@ -37,8 +38,8 @@ module.exports = function VideoFinalizer(app) {
 
   app.pubsub.on('video:ready', function(finalPath) {
     console.log('[VideoFinalizer]', 'video ready', finalPath);
-    queue.push(finalPath);
-    if(queue.length === 0) {
+    queue.push(path.basename(finalPath)); // only store the file name and ext
+    if(queue.length != 0) {
       // start working!
       nextTask();
     }

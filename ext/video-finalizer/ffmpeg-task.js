@@ -30,12 +30,13 @@ var FfmpegTask = function(videoPath, config) {
         ffmpeg.stderr.on('data', function (data) { log += data; });
 
         ffmpeg.on('close', function(code) {
+          console.log('[ffmpeg]', 'process exit', code);
           if(~code) {
+            resolver(outputPath);
             _.each(fragments, function(fragment) {
               console.log('[ffmpeg]', 'cleaning up', 'removing ' + fragment);
               fs.unlink(path.join(config.paths.incoming, '/' + fragment));
             });
-            return resolver(outputPath);
           }
           return rejecter(log);
         });
