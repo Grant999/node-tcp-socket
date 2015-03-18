@@ -22,8 +22,8 @@ for(var p in config.paths) {
 
 var pluginLoader = app.plugins = require('./plugin-loader/index')(app);
 
-var HOST = config.defaults.hostBinding;
-var PORT = process.argv[2] || config.defaults.port; // "node app.js are [0], [1]"
+var HOST = config.sockets.hostBinding;
+var PORT = process.argv[2] || config.sockets.port; // "node app.js are [0], [1]"
 
 config.ffmpeg.args = Handlebars.compile(config.ffmpeg.args);
 

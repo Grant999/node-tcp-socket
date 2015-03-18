@@ -3,6 +3,7 @@ var fs = require('fs');
 var _ = require('underscore');
 var express = require('express');
 var Handlebars = require('handlebars');
+var ips = require('../../ip');
 
 function not_found(res) {
   res.append('status', 404);
@@ -19,9 +20,18 @@ module.exports = function Api(app) {
     });
 
     api.get('/videos', function (req, res) {
-      var files = fs.readdirSync(config.paths.outgoing);
-      res.append('Content-Type', 'application/json');
-      res.send(JSON.stringify(files));
+      fs.readdir(config.paths.outgoing, function(err, files) {
+        res.append('Content-Type', 'application/json');
+        var json = _.map(files, function(file) {
+          return {
+            title: file,
+            html_url: 'http://' + ips[0] + ':' + config.api.port + '/videos/' + file.replace('.mp4', '.html'),
+            url: 'http://' + ips[0] + ':' + config.api.port + '/videos/' + file
+          }
+        })
+
+        res.send(JSON.stringify(json));
+      });
     });
 
     api.get('/videos/:video.:ext', function (req, res) {
@@ -71,11 +81,11 @@ module.exports = function Api(app) {
       });
     });
 
-    var server = api.listen(8080, function () {
+    var server = api.listen(config.api.port, function () {
       var host = server.address().address;
       var port = server.address().port;
 
-      console.log('[Api]', 'listening at http://%s:%s', host, port);
+      console.log('[Api]', 'listening at http://' + host + ':' + port);
     });
   });
 };

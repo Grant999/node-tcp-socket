@@ -4,8 +4,12 @@
     "outgoing": "outgoing",
     "plugins": "ext"
   },
-  "defaults": {
+  "sockets": {
     "port": 9000,
+    "hostBinding": "0.0.0.0"
+  },
+  "api": {
+    "port": 8080,
     "hostBinding": "0.0.0.0"
   },
   "commandFormat": {
